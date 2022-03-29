@@ -14,8 +14,12 @@ int main(int narg, char **argv){
   int *row_ptr, *col_idx; // Row and collumn pointer.
   double *val;
 
+  double epsilon = 0.01;
+  double d = 1.0;
+  double *scores;
+
   read_graph_from_file(argv[1], &n, &row_ptr, &col_idx, &val);
-  
+  PageRank_iterations(n, row_ptr, col_idx, val, d, epsilon, scores);
 
   free(row_ptr); // Free the memory after use.
   free(col_idx);
