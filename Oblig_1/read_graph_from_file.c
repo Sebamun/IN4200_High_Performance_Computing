@@ -52,9 +52,7 @@ void read_graph_from_file(char *filename, int *n, int **row_ptr, int **col_idx,
     else {
       i--; // This "removes" the self links.
       self_links++; // add to the self_link counter.
-      //printf("Blah");
     }
-  //}
     //printf("%d %d \n", outbound[i], inbound[i]);
   }
   fclose(datafile); // Close the file.
@@ -66,7 +64,7 @@ void read_graph_from_file(char *filename, int *n, int **row_ptr, int **col_idx,
 
   // We now want to sort our inbound array. We want to order our numbers in
   // ascending order.
-  // We also want our oubound array to follow the changes in the inbound
+  // We also want our outbound array to follow the changes in the inbound
   // array:
   Sort(inbound, outbound, edges);
 
@@ -91,20 +89,24 @@ void read_graph_from_file(char *filename, int *n, int **row_ptr, int **col_idx,
     // value:
     if ((*row_ptr)[i+1]==0) (*row_ptr)[i+1] = (*row_ptr)[i];
     }
-  *col_idx = outbound; // Fill col_idx with outbound.
 
   *val = (double*) malloc(edges * sizeof(double)); // Allocate memory for the
   // val array. Finally we need to give values to this array;
   for (int i = 0; i < edges; i ++) {
+    (*col_idx)[i] = outbound[i]; // Fill col_idx with outbound.
     (*val)[i] = 1.0 / counter[ (*col_idx)[i] ];
   }
+  free(inbound);
+  free(outbound);
+  // To check the row_ptr, col_idx and val:
   printf("row_ptr: \n");
   for (int i=0; i<*n+1; i++){
   printf("%d \n", (*row_ptr)[i] );
   }
+
   printf("\n");
   printf("col_idx: val: \n");
   for (int i=0; i<edges; i++){
   printf("%d        %f \n", (*col_idx)[i], (*val)[i]);
   }
-  }
+}

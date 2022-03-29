@@ -15,10 +15,11 @@ int main(int narg, char **argv){
   double *val;
 
   read_graph_from_file(argv[1], &n, &row_ptr, &col_idx, &val);
+  
 
-  //free(row_ptr); // Free the memeoty after use.
-  //free(col_idx); // Get error when using this function.
-  //free(val);
+  free(row_ptr); // Free the memory after use.
+  free(col_idx);
+  free(val);
 
 
 }
