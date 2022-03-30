@@ -6,6 +6,7 @@ void read_graph_from_file(char *filename, int *n, int **row_ptr, int **col_idx,
 void PageRank_iterations(int n, int *row_ptr, int *col_idx, double *val,
   double d, double epsilon, double *scores);
 
+double largest(double arr[], int n);
 void swap(int *a, int *b);
 void sort_perm(int *arr, int beg, int end);
 void swapper(int* xp, int* yp);

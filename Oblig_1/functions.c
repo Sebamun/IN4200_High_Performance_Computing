@@ -26,6 +26,30 @@ void Sort(int arr[], int arr_2[], int n)
         swapper(&arr_2[min_idx], &arr_2[i]);
     }
 }
+
+double largest(double arr[], int n)
+{
+    int i;
+
+    // Initialize maximum element
+    double max = arr[0];
+
+    // Traverse array elements
+    // from second and compare
+    // every element with current max
+    for (i = 1; i < n; i++)
+        if (arr[i] > max)
+            max = arr[i];
+
+    return max;
+}
+
+
+
+
+
+
+
 // Tried to use these functions first but there was some memory issue:
 void swap(int *a, int *b) {
     int t=*a; *a=*b; *b=t;

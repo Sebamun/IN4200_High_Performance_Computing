@@ -14,7 +14,7 @@ int main(int narg, char **argv){
   int *row_ptr, *col_idx; // Row and collumn pointer.
   double *val;
 
-  double epsilon = 0.01;
+  double epsilon = 0.001;
   double d = 1.0;
   double *scores;
 
