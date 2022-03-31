@@ -72,7 +72,7 @@ void read_graph_from_file(char *filename, int *N, int **row_ptr, int **col_idx,
   // row pointer.
   (*row_ptr)[0] = 0; // The first element in the row pointer will always be 0
   // as that is how the first element in the row pointer is defined.
-  for (int i = 0; i<edges; i++){
+  for (i = 0; i<edges; i++){
     int idx = inbound[i]; // define index for row_ptr given number value in
     // inbound array.
     (*row_ptr)[idx+1] = i+1; // Give values to row_ptr.
@@ -82,7 +82,7 @@ void read_graph_from_file(char *filename, int *N, int **row_ptr, int **col_idx,
   // col_idx array.
   // We now want to assign values to our col_idx vector. This is done by
   // reordering sections of the outbound array:
-  for (int i=0; i<*N; i++){
+  for (i=0; i<*N; i++){
     int start = (*row_ptr)[i], stop = (*row_ptr)[i+1];
     Sort( &(outbound[start]), &(inbound[start]), stop-start);
     // We want to set the zero elements in the row_ptr equal to the previous
@@ -100,18 +100,19 @@ void read_graph_from_file(char *filename, int *N, int **row_ptr, int **col_idx,
   free(outbound);
   // We also want to know the indexes of the dangling wepages:
   *dangling_idx = (int*) malloc(*N * sizeof(int));
-  for (int i = 0; i<*N; i++){
+  for (i = 0; i<*N; i++){
     if (counter[i]==0) (*dangling_idx)[i] = 1;
   }
   // To check the row_ptr, col_idx and val:
+  printf("--------------------\n");
   printf("row_ptr: \n");
-  for (int i=0; i<*N+1; i++){
+  for (i=0; i<*N+1; i++){
   printf("%d \n", (*row_ptr)[i] );
   }
 
-  printf("\n");
-  printf("col_idx: val: \n");
-  for (int i=0; i<edges; i++){
-  printf("%d        %f \n", (*col_idx)[i], (*val)[i]);
+  printf("--------------------\n");
+  printf("col_idx: | val: \n");
+  for (i=0; i<edges; i++){
+  printf("%d        | %f \n", (*col_idx)[i], (*val)[i]);
   }
 }

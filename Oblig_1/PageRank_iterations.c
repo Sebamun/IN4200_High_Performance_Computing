@@ -9,6 +9,9 @@
 void PageRank_iterations(int N, int *row_ptr, int *col_idx, double *val,
   double d, double epsilon, double *scores, int *dangling_idx){
 
+    int i;
+    int j;
+
     double *x; // Vector of numerical values.
     x = (double*) malloc(N * sizeof(double));
     double *diff; // Difference between previous x and the scores for that
@@ -20,20 +23,20 @@ void PageRank_iterations(int N, int *row_ptr, int *col_idx, double *val,
     double term; // Here we store the vector matrix multiplication.
     double dangling;
     // Initialize:
-    for (int i = 0; i<N; i++){
+    for (i = 0; i<N; i++){
       x[i]=1.0/N; // Initial "guess".
     }
 
     while (crit>epsilon) { // Criteria for updating scores.
       k++; // Add to counter.
-      for (int i=0; i<N; i++){
+      for (i=0; i<N; i++){
         term = 0.; // Reset vector matrix multiplication.
         dangling = 0.; // Reset dangling term.
         if (dangling_idx[i]==1){
         dangling = (1 - d + ( d * x[col_idx[row_ptr[i]]] ) ) / N;
         }
 
-        for (int j=row_ptr[i]; j<row_ptr[i+1]; j++){
+        for (j=row_ptr[i]; j<row_ptr[i+1]; j++){
           term = term + val[j] * x[col_idx[j]]; // Sparse matrix multiplication.
         }
         //printf("%f", dangling);
@@ -47,7 +50,8 @@ void PageRank_iterations(int N, int *row_ptr, int *col_idx, double *val,
         // We now update our x[i] according to the new calculated scores[i].
         // (Note that this has to be done iteratively, as just
         // setting the pointers equal to each other dosent work.)
-        for (int i =0; i<N; i++) x[i] = scores[i];
+        for (i =0; i<N; i++) x[i] = scores[i];
       }
-      for (int i=0; i < N; i++) printf("%f \n", scores[i]); // Converged score.
+      printf("Converged score: \n");
+      for (i=0; i < N; i++) printf("%f \n", scores[i]); // Converged score.
     }

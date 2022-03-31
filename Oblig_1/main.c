@@ -24,17 +24,19 @@ int main(int narg, char **argv){
   int n = 5; // Top n webpages.
 
   read_graph_from_file(argv[1], &N, &row_ptr, &col_idx, &val, &dangling_idx);
-  printf("------------------ \n");
+  printf("------------------- \n");
   // We can use the N to allocate memory to the scores vector:
   scores = (double*) malloc(N * sizeof(double));
   PageRank_iterations(N, row_ptr, col_idx, val, d, epsilon, scores,
     dangling_idx);
-  printf("------------------ \n");
+  printf("------------------------ \n");
   top_n_webpages(N, scores, n);
 
-  free(row_ptr); // Free the memory after use.
+  // Free the memory after use:
+  free(row_ptr);
   free(col_idx);
   free(val);
-
+  free(scores);
+  free(dangling_idx);
 
 }
