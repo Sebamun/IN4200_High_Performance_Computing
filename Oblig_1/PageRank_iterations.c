@@ -9,21 +9,22 @@
 void PageRank_iterations(int n, int *row_ptr, int *col_idx, double *val,
   double d, double epsilon, double *scores){
 
-    double *x;
+    scores = (double*) malloc(n * sizeof(double)); // Allocate memory for ptr.
+    double *x; // Vector of numerical values.
     x = (double*) malloc(n * sizeof(double));
-    double *diff;
+    double *diff; // Difference between previous x and the scores for that
+    // iteration.
     diff = (double*) malloc(n * sizeof(double));
-    double crit = 1.0;
-    int k=0; // How many iterations we need before convergence.
+    double crit = 1.0; // The critical condition, which is updated for each
+    // while loop iteration.
+    int k=0; // How many while loop iterations we need before convergence.
     double term; // Here we store the vector matrix multiplication.
-    //int ones[n];
-    scores = (double*) malloc(n * sizeof(double));
     // Initialize:
     for (int i = 0; i<n; i++){
       x[i]=1.0/n; // Initial "guess".
     }
-
-    while (crit>epsilon) {
+    
+    while (crit>epsilon) { // Criteria for updating scores.
       k++; // Add to counter.
       for (int i=0; i<n; i++){
         term = 0.; // Reset vector matrix multiplication.
@@ -38,26 +39,8 @@ void PageRank_iterations(int n, int *row_ptr, int *col_idx, double *val,
         }
         // We now update our x[i] according to the new calculated scores[i].
         // (Note that this has to be done iteratively, as just
-        // putting the pointers equal to each other dosent work.)
+        // setting the pointers equal to each other dosent work.)
         for (int i =0; i<n; i++) x[i] = scores[i];
       }
       for (int i=0; i < n; i++) printf("%f \n", scores[i]); // Converged score.
-      }
-
-
-
-
-
-
-        //printf("%f \n", scores[i]);
-        //diff[i] = fabs(scores[i] - x[i]);
-        //x[i] = scores[i];
-
-        //printf("%f", diff[i])
-
-      //crit = largest(diff, n);
-      //printf("%f \n", crit);
-      //x = scores;
-      //printf("---- \n");
-    //}
-  //}
+    }
