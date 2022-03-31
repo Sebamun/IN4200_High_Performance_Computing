@@ -2,9 +2,9 @@
 #define common_h
 
 void read_graph_from_file(char *filename, int *n, int **row_ptr, int **col_idx,
-   double **val);
+   double **val, int **dangling_idx);
 void PageRank_iterations(int n, int *row_ptr, int *col_idx, double *val,
-  double d, double epsilon, double *scores);
+  double d, double epsilon, double *scores, int *dangling_idx);
 
 double largest(double arr[], int n);
 void swap(int *a, int *b);

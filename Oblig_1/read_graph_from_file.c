@@ -7,7 +7,7 @@
 #include "common.h"
 
 void read_graph_from_file(char *filename, int *n, int **row_ptr, int **col_idx,
-    double **val){
+    double **val, int **dangling_idx){
   int i; // Used for indexing.
   int edges; // This is the number of lines of data.
   FILE *datafile; // Here we declare pointer to file.
@@ -98,7 +98,13 @@ void read_graph_from_file(char *filename, int *n, int **row_ptr, int **col_idx,
   }
   free(inbound);
   free(outbound);
+  // We also want to know the indexes of the dangling wepages:
+  *dangling_idx = (int*) malloc(*n * sizeof(int));
+  for (int i = 0; i<*n; i++){
+    if (counter[i]==0) (*dangling_idx)[i] = 1;
+  }
   // To check the row_ptr, col_idx and val:
+  /*
   printf("row_ptr: \n");
   for (int i=0; i<*n+1; i++){
   printf("%d \n", (*row_ptr)[i] );
@@ -109,4 +115,5 @@ void read_graph_from_file(char *filename, int *n, int **row_ptr, int **col_idx,
   for (int i=0; i<edges; i++){
   printf("%d        %f \n", (*col_idx)[i], (*val)[i]);
   }
+  */
 }
