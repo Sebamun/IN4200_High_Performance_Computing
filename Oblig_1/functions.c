@@ -30,6 +30,7 @@ void Sort(int arr[], int arr_2[], int n)
 double largest(double arr[], int n)
 {
     int i;
+    //int max_idx;
 
     // Initialize maximum element
     double max = arr[0];
@@ -40,9 +41,30 @@ double largest(double arr[], int n)
     for (i = 1; i < n; i++)
         if (arr[i] > max)
             max = arr[i];
+            //max_idx = i;
 
     return max;
 }
+
+int max_idx(double arr[], int n)
+{
+    int i;
+    int max_idx;
+
+    // Initialize maximum element
+    double max = arr[0];
+
+    // Traverse array elements
+    // from second and compare
+    // every element with current max
+    for (i = 1; i < n; i++)
+        if (arr[i] > max)
+            max = arr[i];
+            max_idx = i;
+
+    return max_idx;
+}
+
 
 
 

@@ -10,21 +10,27 @@ int main(int narg, char **argv){
     printf("insert filename");
     exit(0);
   }
-  int n; // The number of nodes.
+  int N; // The number of nodes.
   int *row_ptr, *col_idx; // Row and collumn pointer.
   double *val;
   int *dangling_idx; // Reason for defining this pointer here:
   // found it easier to collect the dangling webpages in the readfile function
   // than in the PageRank function.
 
-  double epsilon = 0.000001;
-  double d = 1.0;
-  double *scores;
+  double epsilon = 0.000001; // Stopping criteria.
+  double d = 1.0; // Damping constant.
+  double *scores; // PageRank score vector.
 
-  read_graph_from_file(argv[1], &n, &row_ptr, &col_idx, &val, &dangling_idx);
+  int n = 5; // Top n webpages.
+
+  read_graph_from_file(argv[1], &N, &row_ptr, &col_idx, &val, &dangling_idx);
   printf("------------------ \n");
-  PageRank_iterations(n, row_ptr, col_idx, val, d, epsilon, scores,
+  // We can use the N to allocate memory to the scores vector:
+  scores = (double*) malloc(N * sizeof(double));
+  PageRank_iterations(N, row_ptr, col_idx, val, d, epsilon, scores,
     dangling_idx);
+  printf("------------------ \n");
+  top_n_webpages(N, scores, n);
 
   free(row_ptr); // Free the memory after use.
   free(col_idx);
