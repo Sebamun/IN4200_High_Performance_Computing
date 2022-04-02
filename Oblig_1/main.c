@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include <time.h>
 
 #include "common.h"
 
@@ -10,6 +11,7 @@ int main(int narg, char **argv){
     printf("insert filename");
     exit(0);
   }
+  clock_t end, start, end_time, end_2, start_2, end_time_2; // For time taking.
   int N; // The number of nodes.
   int *row_ptr, *col_idx; // Row and collumn pointer.
   double *val;
@@ -25,19 +27,30 @@ int main(int narg, char **argv){
 
   read_graph_from_file(argv[1], &N, &row_ptr, &col_idx, &val, &dangling_idx);
   printf("------------------- \n");
-  /*
+
   // We can use the N to allocate memory to the scores vector:
   scores = (double*) malloc(N * sizeof(double));
+  start = clock();
   PageRank_iterations(N, row_ptr, col_idx, val, d, epsilon, scores,
     dangling_idx);
   printf("------------------------ \n");
   top_n_webpages(N, scores, n);
-  */
-  scores = (double*) malloc(N * sizeof(double));
+  end = clock();
+  end_time = end - start;
+  printf("------------------------ \n");
+  printf("%lu ms \n.", end_time/CLOCKS_PER_SEC * 1000);
+  printf("------------------------ \n");
+  printf("After parallelisation:\n");
+  printf("------------------------ \n");
+  start_2 = clock();
   PageRank_iterations_omp(N, row_ptr, col_idx, val, d, epsilon, scores,
     dangling_idx);
   printf("------------------------ \n");
   top_n_webpages_omp(N, scores, n);
+  end_2 = clock();
+  end_time_2 = end - start;
+  printf("------------------------ \n");
+  printf("%lu ms \n.", end_time_2/CLOCKS_PER_SEC * 1000);
 
   // Free the memory after use:
   free(row_ptr);

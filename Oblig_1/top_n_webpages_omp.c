@@ -3,6 +3,7 @@
 #include <math.h>
 #include <string.h>
 #include <malloc/malloc.h>
+#include <omp.h>
 
 #include "common.h"
 
@@ -19,7 +20,9 @@ void top_n_webpages_omp(int N, double *scores, int n){
     int max_idx;
     double max; // max value for each iteration.
     max = scores[0]; // This is the initial max value each time.
+  #pragma omp parallel for
     for (int j = 1; j < N; j++){ // Run through the other score values.
+      #pragma omp critical
       if (scores[j]>max){ // Criteria for changing max value/index.
         max_idx = j;
         max = scores[j];
