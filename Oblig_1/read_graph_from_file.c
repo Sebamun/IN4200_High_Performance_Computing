@@ -19,22 +19,20 @@ void read_graph_from_file(char *filename, int *N, int **row_ptr, int **col_idx,
     exit(0);
   }
 
-  datafile = fopen(filename, "r");
+  datafile = fopen(filename, "r"); // Open file.
   fscanf(datafile, "%*[^\n]\n"); // Skip line
   fscanf(datafile, "%*[^\n]\n"); // Skip line
   // We can now collect the number of nodes and edges:
   fscanf(datafile, "# Nodes: %d Edges: %d \n", N, &edges);
   fscanf(datafile, "%*[^\n]\n"); // Skip line
   int counter[*N]; // Use this to store the number of elements in each col.
-  //int outbound[edges]; // Define array where we store outbound values.
-  //int inbound[edges]; // Define array where we store inbound values.
-  int *outbound;
-  int *inbound;
+  int *outbound; // Define pointer where we store outbound values.
+  int *inbound; // Define pointer where we store inbound values.
   outbound = (int*)malloc(edges * sizeof(int));
   inbound = (int*)malloc(edges * sizeof(int));
-  int in;
+  int in; // In and out are used to check if we have any self links.
   int out;
-  int self_links = 0;
+  int self_links = 0; // Here we store the number of self links.
   for (i = 0; i<*N; i++){ // Initialize the counter with zeros.
     counter[i] = 0;
   }
@@ -47,13 +45,13 @@ void read_graph_from_file(char *filename, int *N, int **row_ptr, int **col_idx,
     if (out != in){
       outbound[i]=out;
       inbound[i]=in;
-      counter[outbound[i]]++; // This will be used in val array.
+      counter[outbound[i]]++; // This will be used in val array
+      // and for dangling webpages.
     }
     else {
       i--; // This "removes" the self links.
-      self_links++; // add to the self_link counter.
+      self_links++; // Add to the self_link counter.
     }
-    //printf("%d %d \n", outbound[i], inbound[i]);
   }
   fclose(datafile); // Close the file.
 
@@ -86,7 +84,7 @@ void read_graph_from_file(char *filename, int *N, int **row_ptr, int **col_idx,
     int start = (*row_ptr)[i], stop = (*row_ptr)[i+1];
     Sort( &(outbound[start]), &(inbound[start]), stop-start);
     // We want to set the zero elements in the row_ptr equal to the previous
-    // value:
+    // value (not the first element):
     if ((*row_ptr)[i+1]==0) (*row_ptr)[i+1] = (*row_ptr)[i];
     }
 
@@ -94,9 +92,9 @@ void read_graph_from_file(char *filename, int *N, int **row_ptr, int **col_idx,
   // val array. Finally we need to give values to this array;
   for (int i = 0; i < edges; i ++) {
     (*col_idx)[i] = outbound[i]; // Fill col_idx with outbound.
-    (*val)[i] = 1.0 / counter[ (*col_idx)[i] ];
+    (*val)[i] = 1.0 / counter[ (*col_idx)[i] ]; // Calculate val for each i.
   }
-  free(inbound);
+  free(inbound); // Free memory of pointers declared in this file.
   free(outbound);
   // We also want to know the indexes of the dangling wepages:
   *dangling_idx = (int*) malloc(*N * sizeof(int));

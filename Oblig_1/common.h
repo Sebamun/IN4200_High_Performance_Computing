@@ -6,6 +6,9 @@ void read_graph_from_file(char *filename, int *N, int **row_ptr, int **col_idx,
 void PageRank_iterations(int N, int *row_ptr, int *col_idx, double *val,
   double d, double epsilon, double *scores, int *dangling_idx);
 void top_n_webpages(int N, double *scores, int n);
+void PageRank_iterations_omp(int N, int *row_ptr, int *col_idx, double *val,
+  double d, double epsilon, double *scores, int *dangling_idx);
+void top_n_webpages_omp(int N, double *scores, int n);
 
 int max_idx(double arr[], int n);
 double largest(double arr[], int N);

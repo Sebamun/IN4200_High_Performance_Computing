@@ -25,12 +25,19 @@ int main(int narg, char **argv){
 
   read_graph_from_file(argv[1], &N, &row_ptr, &col_idx, &val, &dangling_idx);
   printf("------------------- \n");
+  /*
   // We can use the N to allocate memory to the scores vector:
   scores = (double*) malloc(N * sizeof(double));
   PageRank_iterations(N, row_ptr, col_idx, val, d, epsilon, scores,
     dangling_idx);
   printf("------------------------ \n");
   top_n_webpages(N, scores, n);
+  */
+  scores = (double*) malloc(N * sizeof(double));
+  PageRank_iterations_omp(N, row_ptr, col_idx, val, d, epsilon, scores,
+    dangling_idx);
+  printf("------------------------ \n");
+  top_n_webpages_omp(N, scores, n);
 
   // Free the memory after use:
   free(row_ptr);

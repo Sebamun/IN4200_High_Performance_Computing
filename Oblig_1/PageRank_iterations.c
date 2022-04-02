@@ -6,6 +6,7 @@
 
 #include "common.h"
 
+// In this function we want to collect the PageRank score for the N webpages.
 void PageRank_iterations(int N, int *row_ptr, int *col_idx, double *val,
   double d, double epsilon, double *scores, int *dangling_idx){
 
@@ -39,9 +40,7 @@ void PageRank_iterations(int N, int *row_ptr, int *col_idx, double *val,
         for (j=row_ptr[i]; j<row_ptr[i+1]; j++){
           term = term + val[j] * x[col_idx[j]]; // Sparse matrix multiplication.
         }
-        //printf("%f", dangling);
         scores[i] = dangling + d*term; // The PageRank algorithm.
-        //printf("%f \n", dangling);
         // Our stopping criteria is given by the difference between x[i]
         // and scores[i]:
         diff[i] = fabs(scores[i] - x[i]);
