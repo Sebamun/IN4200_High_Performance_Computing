@@ -37,16 +37,16 @@ compile:
 
 The folder IN4200_Oblig1_xxx contains the following files:
 
-• read_graph_from_file.c
-• PageRank_iterations.c
-• PageRank_iterations_omp.c)
-• top_n_webpages.c 
-• file_top_n_webpages_omp.c
-• main.c
-• README.md
-• common.h
-• functions.c
-• makefile
+* read_graph_from_file.c
+* PageRank_iterations.c
+* PageRank_iterations_omp.c)
+* top_n_webpages.c 
+* file_top_n_webpages_omp.c
+* main.c
+* README.md
+* common.h
+* functions.c
+* makefile
 
 For the simple textfile we have the following ouptut:
 ```
