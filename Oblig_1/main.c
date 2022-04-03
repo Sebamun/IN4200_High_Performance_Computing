@@ -7,8 +7,8 @@
 #include "common.h"
 
 int main(int narg, char **argv){
-  if (narg<2){
-    printf("insert filename");
+  if (narg<4){
+    printf("missing argument(s) in command line");
     exit(0);
   }
   clock_t end, start, end_time, end_2, start_2, end_time_2; // For time taking.
@@ -19,11 +19,11 @@ int main(int narg, char **argv){
   // found it easier to collect the dangling webpages in the readfile function
   // than in the PageRank function.
 
-  double epsilon = 0.000001; // Stopping criteria.
-  double d = 1.0; // Damping constant.
+  double epsilon = atof(argv[3]); // (0.000001) Stopping criteria.
+  double d = atof(argv[2]); // Damping constant.
   double *scores; // PageRank score vector.
 
-  int n = 5; // Top n webpages.
+  int n = atoi(argv[4]); // Top n webpages.
 
   read_graph_from_file(argv[1], &N, &row_ptr, &col_idx, &val, &dangling_idx);
   printf("------------------- \n");
