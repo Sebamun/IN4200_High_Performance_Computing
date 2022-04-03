@@ -12,9 +12,9 @@ void top_n_webpages_omp(int N, double *scores, int n);
 
 int max_idx(double arr[], int n);
 double largest(double arr[], int N);
-void swap(int *a, int *b);
-void sort_perm(int *arr, int beg, int end);
 void swapper(int* xp, int* yp);
 void Sort(int arr[], int arr_2[], int N);
+void Sort_2(double arr[], int arr_2[], int N);
+void swapper_2(double* xp, double* yp);
 
 #endif

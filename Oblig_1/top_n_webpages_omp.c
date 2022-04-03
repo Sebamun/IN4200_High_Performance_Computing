@@ -21,22 +21,30 @@ void top_n_webpages_omp(int N, double *scores, int n){
     double max; // max value for each iteration.
     max = scores[0]; // This is the initial max value each time.
   #pragma omp parallel for
+  {
     for (int j = 1; j < N; j++){ // Run through the other score values.
-      #pragma omp critical
+      //#pragma omp critical
       if (scores[j]>max){ // Criteria for changing max value/index.
         max_idx = j;
         max = scores[j];
       }
     }
+  }
     top_n_scores[i] = max; // Add the max values to array.
     top_n_indicies[i] = max_idx; // Add the corresponding indicies to array.
     scores[max_idx] = 0.0; // "Remove" the max element before next iteration.
   }
+
+  // WHen we have parallelisation we need to order the webpages and scores
+  // one more time. In the case of parallelisation we will obtain the top n
+  // scores but not nescesarily in the correct order, we therefore reorder the
+  // values in ascending order:
+  Sort_2(top_n_scores, top_n_indicies, n);
+
   //Printing:
   printf("Webpage   |   Score     |\n");
-  for (int i = 0; i<n; i++) printf("%d         |   %f  |\n",top_n_indicies[i],
-  top_n_scores[i]);
-
+  for (int i = 0; i<n; i++) printf("%d         |   %f  |\n"
+  ,top_n_indicies[i], top_n_scores[i]);
 
   // Free the memory after use:
   free(top_n_scores);
