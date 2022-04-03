@@ -2,16 +2,14 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
-#include <time.h>
 
 #include "common.h"
 
 int main(int narg, char **argv){
   if (narg<4){
-    printf("missing argument(s) in command line");
+    printf("Missing argument(s) in command line");
     exit(0);
   }
-  clock_t end, start, end_time, end_2, start_2, end_time_2; // For time taking.
   int N; // The number of nodes.
   int *row_ptr, *col_idx; // Row and collumn pointer.
   double *val;
@@ -47,5 +45,4 @@ int main(int narg, char **argv){
   free(val);
   free(scores);
   free(dangling_idx);
-
 }

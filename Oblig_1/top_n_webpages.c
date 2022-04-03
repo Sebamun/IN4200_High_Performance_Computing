@@ -36,7 +36,6 @@ void top_n_webpages(int N, double *scores, int n){
   for (int i = 0; i<n; i++) printf("%d         |   %f  |\n",top_n_indicies[i],
   top_n_scores[i]);
 
-
   // Free the memory after use:
   free(top_n_scores);
   free(top_n_indicies);
