@@ -8,12 +8,7 @@ PROJ = serial_main
 all: simple-jpeg $(PROJ)
 
 serial_main: serial_main.c functions.c
-	$(CC) $(CFLAGS) -o $@ serial_main.c functions.c $(LDFLAGS) 
+	$(CC) $(CFLAGS) -o $@ serial_main.c functions.c $(LDFLAGS)
 
 simple-jpeg:
 	$(MAKE) -C ../../simple-jpeg
-
-run:
-	./serial_main 0.2 50 ../mona_lisa_noisy.jpg
-
-# -fsanitize=address
