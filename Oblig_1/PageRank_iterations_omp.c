@@ -31,7 +31,6 @@ void PageRank_iterations_omp(int N, int *row_ptr, int *col_idx, double *val,
   while (crit>epsilon) { // Criteria for updating scores.
     k++; // Add to counter.
 
-    #pragma omp parallel for reduction(+:term) private(j)
     {
     for (i=0; i<N; i++){
       term = 0.; // Reset vector matrix multiplication.
@@ -39,6 +38,7 @@ void PageRank_iterations_omp(int N, int *row_ptr, int *col_idx, double *val,
       if (dangling_idx[i]==1){
       dangling = (1 - d + ( d * x[col_idx[row_ptr[i]]] ) ) / N;
       }
+      #pragma omp parallel for reduction(+:term) private(j)
         for (j=row_ptr[i]; j<row_ptr[i+1]; j++){
           term = term + val[j] * x[col_idx[j]]; // Sparse matrix multiplication.
         }
@@ -55,6 +55,6 @@ void PageRank_iterations_omp(int N, int *row_ptr, int *col_idx, double *val,
       // setting the pointers equal to each other dosent work.)
       for (i =0; i<N; i++) x[i] = scores[i];
     }
-    printf("Converged score: \n");
-    for (i=0; i < N; i++) printf("%f \n", scores[i]); // Converged score.
+    //printf("Converged score: \n");
+    //for (i=0; i < N; i++) printf("%f \n", scores[i]); // Converged score.
   }

@@ -42,9 +42,9 @@ void top_n_webpages_omp(int N, double *scores, int n){
   Sort_2(top_n_scores, top_n_indicies, n);
 
   //Printing:
-  printf("Webpage   |   Score     |\n");
-  for (int i = 0; i<n; i++) printf("%d         |   %f  |\n"
-  ,top_n_indicies[i], top_n_scores[i]);
+  //printf("Webpage   |   Score     |\n");
+  //for (int i = 0; i<n; i++) printf("%d         |   %f  |\n"
+  //,top_n_indicies[i], top_n_scores[i]);
 
   // Free the memory after use:
   free(top_n_scores);

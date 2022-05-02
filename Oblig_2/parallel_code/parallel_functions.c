@@ -42,7 +42,7 @@ void convert_image_to_jpeg(const image *u, unsigned char* image_chars){
   }
 }
 
-void iso_diffusion_denoising(image *u, image *u_bar, float kappa, int iters){
+void iso_diffusion_denoising_parallel(image *u, image *u_bar, float kappa, int iters){
   // Set boundary conditions in horisontal direction:
   for (int j = 0; j<(u->n); j++){ // i < n means we only go up to n-1, which is
     // what we want.
@@ -55,6 +55,37 @@ void iso_diffusion_denoising(image *u, image *u_bar, float kappa, int iters){
     (u_bar->image_data)[i][(u->n)-1] = (u->image_data)[i][(u->n)-1];
 
   }
+  // We decide for the odd nodes to send first (this means that the upcoming
+  // layer of ghostpoints can be used in calculation for the last row
+  // in the current process):
+  for (size_t idx = 0; idx<iters; idx++){
+    for (size_t i = 1; i<(u->m)-1; i++){
+      for (size_t j = 1; j<(u->n)-1; j++){
+
+
+        (u_bar->image_data)[i][j] = (u->image_data)[i][j] + \
+        kappa * ( (u->image_data)[i-1][j] + (u->image_data)[i][j-1] - \
+        4*(u->image_data)[i][j] + (u->image_data)[i][j+1] + \
+        (u->image_data)[i+1][j]);
+        }
+      }
+    }
+  }
+
+
+
+
+
+
+
+
+        //(u_bar->image_data)[i][j] = (u->image_data)[i][j] + \
+        //kappa * ( (u->image_data)[i-1][j] + (u->image_data)[i][j-1] - \
+        //4*(u->image_data)[i][j] + (u->image_data)[i][j+1] + \
+        //(u->image_data)[i+1][j]);
+
+
+  /*
   // Fill in the remainig values for u_bar:
   for (size_t idx = 0; idx<iters; idx++){
     for (size_t i = 1; i<(u->m)-1; i++){
@@ -68,7 +99,7 @@ void iso_diffusion_denoising(image *u, image *u_bar, float kappa, int iters){
     swapper(u, u_bar); // Swap pointers.
   }
   swapper(u, u_bar); // Swap back pointers on last time.
-}
+  */
 
 void deallocate_image(image *u){
   for (size_t i = 0; i<u->m; i++) free((u->image_data)[i]);

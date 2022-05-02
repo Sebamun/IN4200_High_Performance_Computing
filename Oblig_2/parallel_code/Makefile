@@ -7,7 +7,7 @@ PROJ = parallel_main
 
 all: simple-jpeg $(PROJ)
 
-serial_main: parallel_main.c parallel_functions.c
+parallel_main: parallel_main.c parallel_functions.c
 	$(CC) $(CFLAGS) -o $@ parallel_main.c parallel_functions.c $(LDFLAGS)
 
 simple-jpeg:

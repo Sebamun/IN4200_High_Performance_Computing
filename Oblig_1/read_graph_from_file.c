@@ -102,15 +102,15 @@ void read_graph_from_file(char *filename, int *N, int **row_ptr, int **col_idx,
     if (counter[i]==0) (*dangling_idx)[i] = 1;
   }
   // To check the row_ptr, col_idx and val:
-  printf("--------------------\n");
-  printf("row_ptr: \n");
-  for (i=0; i<*N+1; i++){
-  printf("%d \n", (*row_ptr)[i] );
-  }
+  //printf("--------------------\n");
+  // printf("row_ptr: \n");
+  //for (i=0; i<*N+1; i++){
+  //printf("%d \n", (*row_ptr)[i] );
+  //}
 
-  printf("--------------------\n");
-  printf("col_idx: | val: \n");
-  for (i=0; i<edges; i++){
-  printf("%d        | %f \n", (*col_idx)[i], (*val)[i]);
-  }
+  //printf("--------------------\n");
+  //printf("col_idx: | val: \n");
+  //for (i=0; i<edges; i++){
+  //printf("%d        | %f \n", (*col_idx)[i], (*val)[i]);
+  //}
 }

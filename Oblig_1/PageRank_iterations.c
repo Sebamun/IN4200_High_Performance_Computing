@@ -6,6 +6,15 @@
 
 #include "common.h"
 
+int printvec_d(double *a, int n){
+    printf("[%f,", a[0]);
+    for (size_t i = 1; i < n-1; i++) {
+        printf(" %f,", a[i]);
+    }
+    printf(" %f]\n", a[n-1]);
+    return 0;
+}
+
 // In this function we want to collect the PageRank score for the N webpages.
 void PageRank_iterations(int N, int *row_ptr, int *col_idx, double *val,
   double d, double epsilon, double *scores, int *dangling_idx){
@@ -50,7 +59,9 @@ void PageRank_iterations(int N, int *row_ptr, int *col_idx, double *val,
         // (Note that this has to be done iteratively, as just
         // setting the pointers equal to each other dosent work.)
         for (i =0; i<N; i++) x[i] = scores[i];
+        printf("scores= ");
+        printvec_d(scores, N);
       }
-      printf("Converged score: \n");
-      for (i=0; i < N; i++) printf("%f \n", scores[i]); // Converged score.
+      //printf("Converged score: \n");
+      //for (i=0; i < N; i++) printf("%f \n", scores[i]); // Converged score.
     }
