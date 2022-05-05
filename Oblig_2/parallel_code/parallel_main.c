@@ -22,7 +22,7 @@ int main(int argc, char *argv[]){
       float kappa;
       image u, u_bar, whole_image; // whole_image is where we want to gather all
       // the contributions in the end.
-      unsigned char *image_chars;//, *my_image_chars; // kan være at jeg må flytte denne inni loopen.
+      unsigned char *image_chars, *my_image_chars; // kan være at jeg må flytte denne inni loopen.
       char *input_jpeg_filename, *output_jpeg_filename;
 
       MPI_Init (&argc, &argv);
@@ -82,8 +82,8 @@ int main(int argc, char *argv[]){
       //printf("%d \n", my_n);
       //printf("%d", rows);
       // Allocation of u and u_bar:
-      allocate_image (&u, my_m, my_n);
-      allocate_image (&u_bar, my_m, my_n);
+      //allocate_image (&u, my_m, my_n);
+      //allocate_image (&u_bar, my_m, my_n);
       // Allocate memory for arrays to be used in scatter and gather functions:
       int *n_rows = malloc(num_procs * sizeof(int)); // Store number of rows for each process.
       int *sendcounts = (int*) malloc(num_procs * sizeof(int));
@@ -92,27 +92,57 @@ int main(int argc, char *argv[]){
       displs[0] = 0;
       Gdispls[0] = 0;
 
-      for (int rank = 0; rank<num_procs-1; rank++){
+      n_rows[0] = rows + ((0 >= (num_procs - remainder)) ? 1:0) + 1;
+      sendcounts[0] = n_rows[0]*n;
+      displs[1] = displs[0] + sendcounts[0] ;
+
+
+      for (int rank = 1; rank<num_procs-1; rank++){
         n_rows[rank] = rows + ((rank >= (num_procs - remainder)) ? 1:0) + 2; // Fill number of rows for each process.
         sendcounts[rank] = n_rows[rank]*n; // Fill number of values for each process.
         displs[rank+1] = displs[rank] + sendcounts[rank]; // Starting point for each process.
+
         Gdispls[rank+1] = Gdispls[rank] + n_rows[rank];
       }
+
+
       // Need to take care of last row and number of values:
-      n_rows[num_procs-1] = rows + ((num_procs-1) >= (num_procs - remainder) ? 1:0) + 2;
+      n_rows[num_procs-1] = rows + ((num_procs-1) >= (num_procs - remainder) ? 1:0) + 1;
       sendcounts[num_procs-1] = n_rows[num_procs-1]*n;
+
+      // Comment til imorgen: forsett å print verdier for de ulike parametrene
+      //scatter funksjon.
+
+      //displs[num_procs-1] = displs[rank] + sendcounts[rank]-2;
+      //for (int rank = 1; rank<num_procs-1; rank++){
+      //  n_rows[rank] = n_rows[rank] + 2;
+      //}
       // Allocation of u and u_bar:
       allocate_image (&u, n_rows[my_rank], my_n);
       allocate_image (&u_bar, n_rows[my_rank], my_n);
 
-      unsigned char *my_image_chars; // Define process specific image_chars array,
-      // Which needs to be allocated differently according to the processes:
+
+/* This was wrong:
       if (my_rank == 0) {
-        my_image_chars = malloc(m*n * sizeof *my_image_chars);
+        //my_image_chars = malloc(m*n * sizeof *my_image_chars);
+        my_image_chars = malloc(n_rows[my_rank]*n * sizeof *my_image_chars);
       }
       else my_image_chars = malloc(n_rows[my_rank]*n * sizeof *my_image_chars);
+      */
 
-      MPI_Scatterv(image_chars, sendcounts, displs, MPI_UNSIGNED_CHAR, my_image_chars, n_rows[my_rank]*n, MPI_UNSIGNED_CHAR, 0, MPI_COMM_WORLD);
+      my_image_chars = malloc(n_rows[my_rank]*n * sizeof *my_image_chars);
+
+
+      MPI_Scatterv(image_chars,
+        sendcounts,
+        displs,
+        MPI_UNSIGNED_CHAR,
+        my_image_chars,
+        n_rows[my_rank]*n,
+        MPI_UNSIGNED_CHAR, 0, MPI_COMM_WORLD);
+  printf("hei \n");
+
+
 
       //my_image_chars = (unsigned char*) malloc(my_m*my_n * sizeof(unsigned char));
 
@@ -129,13 +159,16 @@ int main(int argc, char *argv[]){
       //of image_chars and copy the values into u
       //MPI_Scatterv(image_chars, sendcounts, displs, MPI_UNSIGNED_CHAR, my_image_chars, my_m*my_n, MPI_UNSIGNED_CHAR, 0, MPI_COMM_WORLD);
 
-      convert_jpeg_to_image (my_image_chars, &u);
-      iso_diffusion_denoising_parallel (&u, &u_bar, kappa, iters, my_rank, num_procs);
+      //convert_jpeg_to_image (my_image_chars, &u);
+
+      //iso_diffusion_denoising_parallel (&u, &u_bar, kappa, iters, my_rank, num_procs);
+
        /* each process sends its resulting content of u_bar to process 0 */
        /* process 0 receives from each process incoming values and */
        /* copy them into the designated region of struct whole_image */
        /*  ...  */
-       //MPI_Gatherv(u.image_data, n_rows[my_rank]*n, MPI_DOUBLE ,u.image_data ,n_rows ,Gdispls ,MPI_DOUBLE ,0 ,MPI_COMM_WORLD);
+      //convert_image_to_jpeg(&u_bar, my_image_chars);
+      //MPI_Gatherv(my_image_chars, n_rows[my_rank]*n, MPI_UNSIGNED_CHAR ,image_chars ,sendcounts ,Gdispls ,MPI_UNSIGNED_CHAR ,0 ,MPI_COMM_WORLD);
 
       //if (my_rank==0) {
       //convert_image_to_jpeg(&whole_image, image_chars);
