@@ -7,14 +7,18 @@
 
 int calc_m(int m, int num_procs, int rank){
   int my_start, my_stop;
+  int term = m / num_procs;
+  //int rest = m % num_procs;
+  //if(rest != 0) term++;
+
   if (rank != 0){
-    my_start = m * rank / num_procs - 1;
+    my_start = term * rank - 1;
   }
   else{
     my_start = 0;
   }
   if (rank != num_procs-1){
-    my_stop = m * (rank + 1) / num_procs + 1;
+    my_stop = term * (rank + 1) + 1;
   }
   else{
     my_stop = m;
@@ -25,14 +29,17 @@ int calc_m(int m, int num_procs, int rank){
 
 int calc_new_m(int m, int num_procs, int rank){
   int my_start, my_stop;
+  int term = m / num_procs;
+  //int rest = m % num_procs;
+  //if(rest != 0) term++;
   if (rank != 0){
-    my_start = m * rank / num_procs;
+    my_start = term * rank;
   }
   else{
     my_start = 0;
   }
   if (rank != num_procs-1){
-    my_stop = m * (rank + 1) / num_procs;
+    my_stop = term * (rank + 1);
   }
   else{
     my_stop = m;
@@ -52,14 +59,35 @@ void swapper(image *a, image *b)
 }
 
 void allocate_image(image *u, int m, int n){
+
+  u->m = m;
+ u->n = n;
+
+ u->image_data = malloc(m*sizeof(float *));
+ u->image_data[0] = malloc(m*n*sizeof(float));
+ for (size_t i = 1; i < m; i++)
+   u->image_data[i] = &(u->image_data[i-1][n]);
   // Here we should allocate memory for u.
+  /*
   u->m = m; // In practise these will be the my_m and my_n values.
   u->n = n;
   u->image_data = malloc(m * sizeof(float*));
   for (size_t i = 0; i<m; i++){
-    (u->image_data)[i] = malloc(n * sizeof(float));
+    (u->image_data)[i] =
   }
+  */
 }
+
+void deallocate_image(image *u){
+free(u->image_data[0]);
+  free(u->image_data);
+  }
+/*
+void deallocate_image(image *u){
+  for (size_t i = 0; i<u->m; i++) free((u->image_data)[i]);
+  free(u->image_data);
+}
+*/
 
 void convert_jpeg_to_image(const unsigned char* image_chars, image *u){
   // Want to fill our 2d array with values from 1d array.
@@ -88,12 +116,12 @@ void iso_diffusion_denoising_parallel(image *u, image *u_bar, float kappa, int i
   for (int j = 0; j<(u->n); j++){ // i < n means we only go up to n-1, which is
     // what we want. In the parallised version we only want to set these
     // boundary conditions for the first and last process.
-    if (my_rank == 0){ // First processer.
+    //if (my_rank == 0){ // First processer.
       (u_bar->image_data)[0][j] = (u->image_data)[0][j];
-    }
-    if (my_rank == num_procs-1){ // Last processor.
+    //}
+    //if (my_rank == num_procs-1){ // Last processor.
       (u_bar->image_data)[(u->m)-1][j] = (u->image_data)[(u->m)-1][j];
-    }
+    //}
   }
 
   // Now we set boundary conditions in the vertical direction. This will be the
@@ -325,8 +353,3 @@ if (my_rank == 0){
   }
   swapper(u, u_bar); // Swap back pointers on last time.
   */
-
-void deallocate_image(image *u){
-  for (size_t i = 0; i<u->m; i++) free((u->image_data)[i]);
-  free(u->image_data);
-}

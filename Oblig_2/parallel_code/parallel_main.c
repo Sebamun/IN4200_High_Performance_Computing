@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <mpi.h>
 #include "parallel_common.h" // Import struct from this header file.
+#include "stdbool.h"
+
 
 #ifdef __MACH__ // if Macintosh operating system.
 #include <stdlib.h>
@@ -15,6 +17,11 @@ void import_JPEG_file (const char* filename, unsigned char** image_chars,
 void export_JPEG_file (const char* filename, const unsigned char* image_chars,
                       int image_height, int image_width,
                       int num_components, int quality);
+bool overlap_above(const int rank)
+{
+  return (rank != 0);
+}
+
 
 int main(int argc, char *argv[]){
       int m, n, c, iters;
@@ -22,7 +29,7 @@ int main(int argc, char *argv[]){
       float kappa;
       image u, u_bar, whole_image; // whole_image is where we want to gather all
       // the contributions in the end.
-      unsigned char *image_chars, *my_image_chars; // kan være at jeg må flytte denne inni loopen.
+      unsigned char *image_chars, *my_image_chars, *new_my_image_chars; // kan være at jeg må flytte denne inni loopen.
       char *input_jpeg_filename, *output_jpeg_filename;
       int *sendcounts, *displs;
 
@@ -57,12 +64,13 @@ int main(int argc, char *argv[]){
         for (int rank = 0; rank<num_procs; rank ++){
           my_m = calc_m(m, num_procs, rank);
           sendcounts[rank] = my_m * n;
+          printf("%d \n", sendcounts[rank]);
         }
         for (int rank = 1; rank < num_procs; rank++){
 
           displs[rank] = displs[rank-1] + sendcounts[rank - 1];
-          displs[rank] = displs[rank] - n;
-          if (rank != (num_procs-1)) displs[rank] = displs[rank] - n;
+          //displs[rank] = displs[rank] - n;
+          //if (rank != (num_procs-1)) displs[rank] = displs[rank] - n;
           //if (rank != 0) displs[rank] = displs[rank] - n;
           //if (rank-1 != (num_procs-1)) displs[rank] = displs[rank] - n;
         }
@@ -72,7 +80,7 @@ int main(int argc, char *argv[]){
       // last section as it would be overwritten in the first processor if not.
 
       my_image_chars = malloc(my_m*n * sizeof (my_image_chars));
-      printf("%d \n", my_m*n);
+      //printf("%d \n", my_m*n);
       MPI_Scatterv(image_chars,
         sendcounts,
         displs,
@@ -86,30 +94,43 @@ int main(int argc, char *argv[]){
         allocate_image (&u_bar, my_m, n);
 
        convert_jpeg_to_image (my_image_chars, &u);
-       iso_diffusion_denoising_parallel (&u, &u_bar, kappa, iters, my_rank, num_procs);
+      iso_diffusion_denoising_parallel (&u, &u_bar, kappa, iters, my_rank, num_procs);
 
-       convert_image_to_jpeg(&u_bar, my_image_chars);
+      convert_image_to_jpeg(&u_bar, my_image_chars);
       //COMMENT: For imorgen- prøv å omstokke på send og receive. + sjekk convert_jpeg_to_image
       // i tilfellet jeg er nødt til å sette start stop betingelser + offset inni my_image_chars
 
        // We now need to adjust our send_counts and displs:
+
        if (my_rank == 0){
          displs[0] = 0;
          for (int rank = 0; rank<num_procs; rank ++){
            new_my_m = calc_new_m(m, num_procs, rank);
-           sendcounts[rank] = my_m * n;
+           sendcounts[rank] = new_my_m * n;
          }
          for (int rank = 1; rank < num_procs; rank++)
            displs[rank] = displs[rank-1] + sendcounts[rank-1];
        }
 
+
        // We now need to revert back to the original actual number of rows for
        // each section:
        new_my_m = calc_new_m(m, num_procs, my_rank);
-       printf("%d\n", new_my_m*n);
+       new_my_image_chars = malloc(new_my_m*n * sizeof (my_image_chars));
+
+       if (my_rank == 0){
+         for (int i = 0; i<new_my_m*n;i++) new_my_image_chars[i] = my_image_chars[i];
+       }
+      if (my_rank != 0){
+        for (int i = 0; i<new_my_m*n;i++) new_my_image_chars[i] = my_image_chars[i + n];
+      }
+
+
        //convert_image_to_jpeg(&u_bar, my_image_chars);
-       MPI_Gatherv(my_image_chars, my_m*n, MPI_UNSIGNED_CHAR, image_chars, sendcounts, displs, MPI_UNSIGNED_CHAR, 0, MPI_COMM_WORLD);
-       printf("hei\n");
+       MPI_Gatherv(new_my_image_chars, new_my_m*n, MPI_UNSIGNED_CHAR, image_chars, sendcounts, displs, MPI_UNSIGNED_CHAR, 0, MPI_COMM_WORLD);
+
+       //MPI_Gatherv(&(my_image_chars[overlap_above(my_rank)*n]), new_my_m*n, MPI_UNSIGNED_CHAR, image_chars, sendcounts, displs, MPI_UNSIGNED_CHAR, 0, MPI_COMM_WORLD);
+       //printf("hei\n");
 
          /* each process sends its resulting content of u_bar to process 0 */
          /* process 0 receives from each process incoming values and */

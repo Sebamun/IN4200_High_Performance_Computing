@@ -1,6 +1,7 @@
 /* needed header files .... */
 #include <stdio.h>
 #include "common.h" // Import struct from this header file.
+#include "stdbool.h"
 
 #ifdef __MACH__ // if Macintosh operating system.
 #include <stdlib.h>
@@ -14,6 +15,7 @@ void import_JPEG_file (const char* filename, unsigned char** image_chars,
 void export_JPEG_file (const char* filename, const unsigned char* image_chars,
                       int image_height, int image_width,
                       int num_components, int quality);
+
 
 int main(int argc, char *argv[]) {
       if (argc<3){
