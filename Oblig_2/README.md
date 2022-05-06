@@ -17,7 +17,7 @@ make all
 # Run program:
 ./serial_main mona_lisa_noisy.jpeg mona_lisa_denoised.jpeg 0.2 100
 ```
-Where filename = mona_lisa_noisy.jpeg, output file = mona_lisa_denoised.jpeg,  kappa = 0.2, iters = 100.
+Where input file = mona_lisa_noisy.jpeg, output file = mona_lisa_denoised.jpeg,  kappa = 0.2 (small constant), iterations = 100.
 You can changes these values as you please.
 The compilation arguments is given in the makefile, which you can find in the serial_code folder.
 
@@ -29,7 +29,7 @@ make all
 # Run program:
 mpirun -n 6 ./parallel_main mona_lisa_noisy.jpeg mona_lisa_denoised.jpeg 0.2 100
 ```
-Where filename = mona_lisa_noisy.jpeg, output file = mona_lisa_denoised.jpeg,  kappa = 0.2, iters = 100.
+Where input file = mona_lisa_noisy.jpeg, output file = mona_lisa_denoised.jpeg, kappa = 0.2 (small constant), iterations = 100.
 Here we have that the number after -n is the number of cores you want to use.
 You can changes these values as you please.
 The compilation arguments is given in the makefile, which you can find in the parallel_code folder.
