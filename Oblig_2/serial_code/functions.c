@@ -23,7 +23,6 @@ void allocate_image(image *u, int m, int n){
 
 void convert_jpeg_to_image(const unsigned char* image_chars, image *u){
   // Want to fill our 2d array with values from 1d array.
-  // for (int i = 0; i<(u->m * u->n); i++ )printf("%d \n", image_chars[i]);
   for (size_t i = 0 ; i<u->m; i ++){
     for (size_t j = 0; j<u->n; j++){
       (u->image_data)[i][j] = image_chars[i*u->n + j];

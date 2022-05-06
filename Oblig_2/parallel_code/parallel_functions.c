@@ -28,8 +28,7 @@ int calc_m(int m, int num_procs, int rank){
 int calc_new_m(int m, int num_procs, int rank){
   int my_start, my_stop;
   int term = m / num_procs;
-  //int rest = m % num_procs;
-  //if(rest != 0) term++;
+  
   if (rank != 0){
     my_start = term * rank;
   }
