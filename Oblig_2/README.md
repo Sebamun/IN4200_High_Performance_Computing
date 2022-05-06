@@ -21,7 +21,7 @@ Where input file = mona_lisa_noisy.jpeg, output file = mona_lisa_denoised.jpeg, 
 You can changes these values as you please.
 The compilation arguments is given in the makefile, which you can find in the serial_code folder.
 
-# How to run the code for parallel:
+## How to run the code for parallel:
 Open terminal window and go into the parallel_code folder. These commands compile and execute the program:
 ```
 # To compile all of the files:
