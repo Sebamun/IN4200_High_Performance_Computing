@@ -5,6 +5,45 @@
 
 #include "parallel_common.h" // Import struct from this header file.
 
+int calc_m(int m, int num_procs, int rank){
+  int my_start, my_stop;
+  if (rank != 0){
+    my_start = m * rank / num_procs - 1;
+  }
+  else{
+    my_start = 0;
+  }
+  if (rank != num_procs-1){
+    my_stop = m * (rank + 1) / num_procs + 1;
+  }
+  else{
+    my_stop = m;
+  }
+  int my_m = my_stop - my_start;
+  return my_m;
+}
+
+int calc_new_m(int m, int num_procs, int rank){
+  int my_start, my_stop;
+  if (rank != 0){
+    my_start = m * rank / num_procs;
+  }
+  else{
+    my_start = 0;
+  }
+  if (rank != num_procs-1){
+    my_stop = m * (rank + 1) / num_procs;
+  }
+  else{
+    my_stop = m;
+  }
+  int my_m = my_stop - my_start;
+  return my_m;
+
+}
+
+
+
 void swapper(image *a, image *b)
 {// Used to swap position of two arrays.
   image t = *a;
@@ -27,7 +66,7 @@ void convert_jpeg_to_image(const unsigned char* image_chars, image *u){
   // for (int i = 0; i<(u->m * u->n); i++ )printf("%d \n", image_chars[i]);
   for (size_t i = 0 ; i<u->m; i ++){
     for (size_t j = 0; j<u->n; j++){
-      (u->image_data)[i][j] = image_chars[i*u->n + j];
+      (u->image_data)[i][j] = image_chars[i*u->n + j]; // add (float) before here?
       // Here we skip the i*n for each iteration in image_chars.
     }
   }
@@ -45,7 +84,7 @@ void convert_image_to_jpeg(const image *u, unsigned char* image_chars){
 void iso_diffusion_denoising_parallel(image *u, image *u_bar, float kappa, int iters, int my_rank, int num_procs){
   // Set boundary conditions in horisontal direction:
   double l_odd, l_0, l_l, l_even;
-  MPI_Status sta_1, sta_2;
+  MPI_Status sta_1, sta_2, s;
   for (int j = 0; j<(u->n); j++){ // i < n means we only go up to n-1, which is
     // what we want. In the parallised version we only want to set these
     // boundary conditions for the first and last process.
@@ -71,9 +110,54 @@ void iso_diffusion_denoising_parallel(image *u, image *u_bar, float kappa, int i
   float *botlayer = malloc(u->n * sizeof(float));
 
   for (size_t idx = 0; idx<iters; idx++){
+    if (my_rank%2!=0) {
 
+              // send and receive top
+              toplayer = u->image_data[0];
+              MPI_Recv(toplayer, u->n, MPI_FLOAT, my_rank-1, 0, MPI_COMM_WORLD, &s);
+              MPI_Send(toplayer, u->n, MPI_FLOAT, my_rank-1, 0, MPI_COMM_WORLD);
+              u->image_data[1] = toplayer;
+
+              // send and receive bottom
+              if (my_rank != num_procs-1){
+                  botlayer = u->image_data[u->m - 2];
+                  MPI_Send(botlayer, u->n, MPI_FLOAT, my_rank+1, 0, MPI_COMM_WORLD);
+                  MPI_Recv(botlayer, u->n, MPI_FLOAT, my_rank+1, 0, MPI_COMM_WORLD, &s);
+                  u->image_data[u->m - 1] = botlayer;
+              }
+
+          } else { // even
+              // send and receive bottom
+              if (my_rank != num_procs-1){
+                  botlayer = u->image_data[u->m - 2];
+                  MPI_Send(botlayer, u->n, MPI_FLOAT, my_rank+1, 0, MPI_COMM_WORLD);
+                  MPI_Recv(botlayer, u->n, MPI_FLOAT, my_rank+1, 0, MPI_COMM_WORLD, &s);
+                  u->image_data[u->m - 1] = botlayer;
+              }
+
+              // send and receive top
+              if (my_rank != 0){ // since my_rank-1 does not exist for my_rank=0
+                  toplayer = u->image_data[0];
+                  MPI_Recv(toplayer, u->n, MPI_FLOAT, my_rank-1, 0, MPI_COMM_WORLD, &s);
+                  MPI_Send(toplayer, u->n, MPI_FLOAT, my_rank-1, 0, MPI_COMM_WORLD);
+                  u->image_data[1] = toplayer;
+
+              }
+
+          }
+
+    /*
 
   if (my_rank%2){ // Go in here if odd rank.
+    // We need to send and receive from the layer above the current one,
+    // which also needs to be done by the the last section:
+    // We also need to receive information from the layer above the current one:
+    MPI_Recv(toplayer, u->n, MPI_DOUBLE, my_rank-1, 0, MPI_COMM_WORLD, &sta_2);
+    (u->image_data)[0] = toplayer; // This becomes our first row (of ghostpoints).
+    toplayer = (u->image_data)[1]; // Second row.
+    // Send information to the layer above this one:
+    MPI_Send(toplayer, u->n, MPI_DOUBLE, my_rank-1, 0, MPI_COMM_WORLD);
+
     if (my_rank != (num_procs-1)){ // Go in here if not last process. Then we also
       // Send/Receive information to the layer below this one:
       botlayer = (u->image_data)[(u->m-1)-1]; // Second to last row.
@@ -83,35 +167,30 @@ void iso_diffusion_denoising_parallel(image *u, image *u_bar, float kappa, int i
       // We can now add a extra ghost row to our section.
       u->image_data[u->m - 1] = botlayer;
     }
-    printf("hei\n");
 
 
-    // We also need to send and receive from the layer above the current one,
-    // which also needs to be done by the the last section:
-    toplayer = (u->image_data)[1]; // Second row.
-    // Send information to the layer above this one:
-    MPI_Send(toplayer, u->n, MPI_DOUBLE, my_rank-1, 0, MPI_COMM_WORLD);
-    // We also need to receive information from the layer above the current one:
-    MPI_Recv(toplayer, u->n, MPI_DOUBLE, my_rank-1, 0, MPI_COMM_WORLD, &sta_2);
-    (u->image_data)[0] = toplayer; // This becomes our first row (of ghostpoints).
   }
   else{ // This is if my_rank is even:
+    // We also need to send and receive from the layer below the current one,
+    // which also needs to be done by the the first section but not for the first:
+    if (my_rank != num_procs-1){
+      botlayer = (u->image_data)[(u->m-1)-1]; // Second to last row.
+      MPI_Send(botlayer, u->n, MPI_DOUBLE, my_rank+1, 0, MPI_COMM_WORLD);
+      // Receive information from the layer below this one:
+      MPI_Recv(botlayer, u->n, MPI_DOUBLE, my_rank+1, 0, MPI_COMM_WORLD, &sta_1);
+      // We can now add a extra ghost row to our section.
+      u->image_data[u->m - 1] = botlayer;
+  }
     if (my_rank != 0){ // Go in here if my_rank is different from zero. The we
       // also need to Send/Receive information from the layer above this one:
-      toplayer = (u->image_data)[1]; // Second row.
-      MPI_Send(toplayer, u->n, MPI_DOUBLE, my_rank-1, 0, MPI_COMM_WORLD);
       MPI_Recv(toplayer, u->n, MPI_DOUBLE, my_rank-1, 0, MPI_COMM_WORLD, &sta_2);
       (u->image_data)[0] = toplayer; // This becomes our first row (of ghostpoints).
+      toplayer = (u->image_data)[1]; // Second row.
+      MPI_Send(toplayer, u->n, MPI_DOUBLE, my_rank-1, 0, MPI_COMM_WORLD);
     }
-    // We also need to send and receive from the layer below the current one,
-    // which also needs to be done by the the first section:
-    botlayer = (u->image_data)[(u->m-1)-1]; // Second to last row.
-    MPI_Send(botlayer, u->n, MPI_DOUBLE, my_rank+1, 0, MPI_COMM_WORLD);
-    // Receive information from the layer below this one:
-    MPI_Recv(botlayer, u->n, MPI_DOUBLE, my_rank+1, 0, MPI_COMM_WORLD, &sta_1);
-    // We can now add a extra ghost row to our section.
-    u->image_data[u->m - 1] = botlayer;
-  }
+    */
+
+  //}
     for (size_t i = 1; i<(u->m)-1; i++){
       for (size_t j = 1; j<(u->n)-1; j++){
 
@@ -120,6 +199,7 @@ void iso_diffusion_denoising_parallel(image *u, image *u_bar, float kappa, int i
         4*(u->image_data)[i][j] + (u->image_data)[i][j+1] + \
         (u->image_data)[i+1][j]);
       }
+
     }
     swapper(u, u_bar); // Swap pointers.
   }
@@ -131,7 +211,7 @@ void iso_diffusion_denoising_parallel(image *u, image *u_bar, float kappa, int i
 
 
 // Comment: The processor will hang when it sends a chunk of data, untill you
-// receive it in another processor. 
+// receive it in another processor.
 
 
 
