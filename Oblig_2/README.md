@@ -14,7 +14,7 @@ Open terminal window and go into the serial_code folder. These commands compile 
 ```
 # To compile all of the files:
 make all
-# Run program for smallest textfile:
+# Run program:
 ./serial_main mona_lisa_noisy.jpeg mona_lisa_denoised.jpeg 0.2 100
 ```
 Where filename = mona_lisa_noisy.jpeg, output file = mona_lisa_denoised.jpeg,  kappa = 0.2, iters = 100.
@@ -26,7 +26,7 @@ Open terminal window and go into the parallel_code folder. These commands compil
 ```
 # To compile all of the files:
 make all
-# Run program for smallest textfile:
+# Run program:
 mpirun -n 6 ./parallel_main mona_lisa_noisy.jpeg mona_lisa_denoised.jpeg 0.2 100
 ```
 Where filename = mona_lisa_noisy.jpeg, output file = mona_lisa_denoised.jpeg,  kappa = 0.2, iters = 100.
