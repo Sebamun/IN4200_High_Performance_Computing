@@ -2,8 +2,6 @@
 #include <stdio.h>
 #include <mpi.h>
 #include "parallel_common.h" // Import struct from this header file.
-#include "stdbool.h"
-
 
 #ifdef __MACH__ // if Macintosh operating system.
 #include <stdlib.h>

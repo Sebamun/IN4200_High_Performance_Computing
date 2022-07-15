@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
        image u, u_bar; // Define these as image datatype.
        unsigned char *image_chars;
        char *input_jpeg_filename, *output_jpeg_filename;
-      
+
        input_jpeg_filename = argv[1];
        output_jpeg_filename = argv[2];
        kappa = atof(argv[3]);
