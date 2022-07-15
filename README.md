@@ -1,2 +1,2 @@
-# IN4200 High Performane Computing
+# IN4200 High Performance Computing
 The mandatory assignments for the course IN4200 by Sebastian Amundsen.
